@@ -1,0 +1,135 @@
+1. OVERVIEW
+
+CVFinder is a Python package detecting viral integraions by greedy clustering. Different from the 
+other tools, CVFinder doesn't perform the reads mapping. BWA-MEM is the recommended aligner 
+at the moment. Theoretically, other mapping tools will also be OK as long as they support the 
+supplementary alignments and output the sam flag "1024" for them, which is recognized by CVFinder. 
+However, users should notice that other aligners have never been tested. Perhaps these tests will 
+be performed in the future. Also, CVFinder doesn't perform virus reference cutomization, either. 
+Currently, we recommend pipeline in the VERSE to accomplish this task.
+
+2. INSTALLATION
+
+Most modules used by CVFinder are built-in ones. Nonetheless, CVFinder 
+is dependent on a couple of packages requiring manual installation, which are:
+
+	a. pprint
+	b. cigar
+
+After installing these modules, run "sudo chmod +x CVFinder.py" to add execute permission.
+
+3. RUNNING
+
+Assuming that sequencing data has been mapped to the mixed human-virus genome by BWA-MEM and the 
+output alignment .sam (or .bam) file is output_aln.sam (output_aln.bam), then CVFinder is run by the 
+following command:
+
+	CVFinder.py -f output_aln.sam -o output_integration.txt
+
+For changing the default parameters, please run "CVFinder.py -h". Note that the output_aln.sam is 
+sorted by read names, which is the directed output of BWA-MEM. It should also be noted that, if 
+the input file is in .bam format, then the samtools 1.x should be installed. 
+
+If there are orphan reads in your pair-end data and you don't want to just throw them away. Then users
+could separately map them by BWA-MEM and merge its sam file with that of pair-end data. CVFinder is able
+to identify and process the alignments of these orphans.
+
+
+4. OUTPUT FORMAT
+
+A typical integration cluster output by CVFinder looks like this:
+
+
+>Left: chrVirus:-:2680-2457	Right: chr5:+:1293296-1293491	Cluster_Size: 19
+-Left_breakpoint: chrVirus:-:2457	Right_breakpoint: chr5:+:1293296	Score: 17.2	Breakpoint_type: 1
+-Left_breakpoint: chrVirus:-:2457	Right_breakpoint: chr5:+:1293307	Score: 1.8	Breakpoint_type: 1
+-Microhomology_region: chrVirus:-:2458-2457	chr5:+:1293296-1293297
+-Left Dust: Segment_1: 1
+-Right Dust: Segment_1: 2
+<Information Section>
+SRR3104802.4981253	chrVirus	-	2572	2473	chr5	+	1293392	1293491	chrVirus:-:2473-NA | chr5:+:NA-1293392	0
+SRR3104802.4985452	chrVirus	-	2551	2457	chr5	+	1293323	1293422	chrVirus:-:2457-NA | chr5:+:NA-1293323	0
+SRR3104802.1504973	chrVirus	-	2600	2501	chr5	+	1293307	1293398	chrVirus:-:2501-NA | chr5:+:NA-1293307	0
+SRR3104802.367494	chrVirus	-	2564	2457	chr5	+	1293307	1293337	chrVirus:-:2457-2457 | chr5:+:1293307-1293307	1
+SRR3104802.4319518	chrVirus	-	2564	2457	chr5	+	1293304	1293337	chrVirus:-:2457-2457 | chr5:+:1293304-1293304	1
+SRR3104802.661297	chrVirus	-	2581	2482	chr5	+	1293301	1293400	chrVirus:-:2482-NA | chr5:+:NA-1293301	0
+SRR3104802.1258720	chrVirus	-	2564	2457	chr5	+	1293301	1293337	chrVirus:-:2457-2457 | chr5:+:1293301-1293301	1
+SRR3104802.1841885	chrVirus	-	2600	2501	chr5	+	1293299	1293398	chrVirus:-:2501-NA | chr5:+:NA-1293299	0
+SRR3104802.2236941	chrVirus	-	2606	2507	chr5	+	1293298	1293397	chrVirus:-:2507-NA | chr5:+:NA-1293298	0
+SRR3104802.3178974	chrVirus	-	2649	2550	chr5	+	1293296	1293360	chrVirus:-:2550-NA | chr5:+:NA-1293296	0
+SRR3104802.3794693	chrVirus	-	2630	2531	chr5	+	1293296	1293374	chrVirus:-:2531-NA | chr5:+:NA-1293296	0
+SRR3104802.5855366	chrVirus	-	2554	2459	chr5	+	1293296	1293369	chrVirus:-:2459-NA | chr5:+:NA-1293296	0
+SRR3104802.4649733	chrVirus	-	2554	2457	chr5	+	1293296	1293369	chrVirus:-:2457-NA | chr5:+:NA-1293296	0
+SRR3104802.3996849	chrVirus	-	2649	2457	chr5	+	1293296	1293360	chrVirus:-:2457-2457 | chr5:+:1293296-1293296	1
+SRR3104802.5856764	chrVirus	-	2564	2457	chr5	+	1293296	1293337	chrVirus:-:2457-2457 | chr5:+:1293296-1293296	1
+SRR3104802.991457	chrVirus	-	2556	2457	chr5	+	1293296	1293379	chrVirus:-:2457-NA | chr5:+:NA-1293296	0
+SRR3104802.5000624	chrVirus	-	2680	2457	chr5	+	1293296	1293334	chrVirus:-:2457-2457 | chr5:+:1293296-1293296	1
+SRR3104802.827442	chrVirus	-	2586	2457	chr5	+	1293296	1293330	chrVirus:-:2457-2457 | chr5:+:1293296-1293296	1
+SRR3104802.6173889	chrVirus	-	2517	2457	chr5	+	1293296	1293411	chrVirus:-:2457-2457 | chr5:+:1293296-1293296	1
+
+<Sequence Section>
+                  	                                                                                                               VIRUS                                                                                                            	                                                                                                 HUMAN                                                                                              
+                  	2680                                                                                                                                                                                                                        2457	1293296                                                                                                                                                                                      1293491
+                  	|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|	|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+Reference_sequence	AAGGGCAAATATTTGGTAATGTTAGGATAGAACCTAGCAGGCATAATTAATTTTAATCTCCGTTTTTCATTAACTGTAAGAGGGCCCACATATTGTTGACATCTATCAATAATGTCCTCCTGTAAATGAATGTGAGGAAAGGAGGGAGTTTGCCACTCAGGATTAAAGACAGGTACAGTAGAAGAATAAAGCCCAGTAAAGTTTCCCACCTTATGAGTCCAAGG	GGCCACCACCTCCTCACCTGGGCTCCTGCGCAGCCAAGCGCAGTCCCGCACGCTCATCTTCCACGTCAGCTCCTGCAGCGAGAGCTTGGCATGCTTCCCCAGGGAGATGAACTTCTTGGTGTTCCTGAGGAAGCGGCGTTCGTTGTGCCTGGAGCCCCAGAGGCCTGGGGGCACTAGCCGGCGCAGGCAGGCCCGC
+SRR3104802.4981253	                                                                                                            ATAATGTCCTCCTGTAAATGAATGTGAGGAAAGGAGGGAGTTTGCCACTCAGGATTAAAGACAGGTACAGTAGAAGAATAAAGCCCAGTAAAGTTTCCCA                	                                                                                                CCCCAGGGAGATGAACTTCTTGGTGTTCCTGAGGAAGCGGCGTTCGTTGTGCCTGGAGCCCCAGAGGCCTGGGGGCACTAGCCGGCGCAGGCAGGCCCGC
+SRR3104802.4985452	                                                                                                                                 ATGTGAGGAAAGGAGGGAGTTTGCCACTCAGGATTAAAGACAGGTACAGTAGAAGAATAAAGCCCAGTAAAGTTTCCCACCTTATGAGTCCAAGG	                           GCGCAGCCAAGCGCAGTCCCGCACGCTCATCTTCCACGTCAGCTCCTGCAGCGAGAGCTTGGCATGCTTCCCCAGGGAGATGAACTTCTTGGTGTTCCTG                                                                     
+SRR3104802.1504973	                                                                                AGGGCCCACATATTGTTGACATCTATCAATAATGTCCTCCTGTAAATGAATGTGAGGAAAGGAGGGAGTTTGCCACTCAGGATTAAAGACAGGTACAGTA                                            	           CCTCACCTGGGCTCCTGCGCAGCCAAGCGCAGTCCCGCACGCTCATCTTCCACGTCAGCTCCTGCAGCGAGAGCTTGGCATGCTTCCCCAGG                                                                                             
+SRR3104802.367494 	                                                                                                                    CTCCTGTAAATGAATGTGAGGAAAGGAGGGAGTTTGCCACTCAGGATTAAAGACAGGTACAGTAGAAGAATAAAGCCCAGTAAAGTTTCCCACCTTATGAGGCCAAGG	           CCTCACCTGGGCTCCTGCGCAGCCAAGCGCA                                                                                                                                                          
+SRR3104802.4319518	                                                                                                                    CTCCTGTAAATGAATGTGAGGAAAGGAGGGAGTTTGCCACTCAGGATTAAAGACAGGTACAGTAGAAGAATAAAGCCCAGTAAAGTTTCCCACCTTATGAGTCCAAGG	        CCTCCTCACCTGGGCTCCTGCGCAGCCAAGCGCA                                                                                                                                                          
+SRR3104802.661297 	                                                                                                   CATCTATCAATAATGTCCTCCTGTAAATGAATGTGAGGAAAGGAGGGAGTTTGCCACTCAGGATTAAAGACAGGTACAGTAGAAGAATAAAGCCCAGTAA                         	     CCACCTCCTCACCTGGGCTCCTGCGCAGCCAAGCGCAGTCCCGCACGCTCATCTTCCACGTCAGCTCCTGCAGCGAGAGCTTGGCATGCTTCCCCAGGGA                                                                                           
+SRR3104802.1258720	                                                                                                                    CTCCTGTAAATGAATGTGAGGAAAGGAGGGAGTTTGCCACTCAGGATTAAAGACAGGTACAGTAGAAGAATAAAGCCCAGTAAAGTTTCCCACCTTATGAGTCCAAGG	     CCACCTCCTCACCTGGGCTCCTGCGCAGCCAAGCGCA                                                                                                                                                          
+SRR3104802.1841885	                                                                                AGGGCCCACATATTGTTGACATCTATCAATAATGTCCTCCTGTAAATGAATGTGAGGAAAGGAGGGAGTTTGCCACTCAGGATTAAAGACAGGTACAGTA                                            	   CACCACCTCCTCACCTGGGCTCCTGCGCAGCCAAGCGCAGTCCCGCACGCTCATCTTCCACGTCAGCTCCTGCAGCGAGAGCTTGGCATGCTTCCCCAGG                                                                                             
+SRR3104802.2236941	                                                                          TGTAAGAGGGCCCACATATTGTTGACATCTATCAATAATGTCCTCCTGTAAATGAATGTGAGGAAAGGAGGGAGTTTGCCACTCAGGACTAAAGACAGGT                                                  	  CCACCACCTCCTCACCTGGGCTCCTGCGCAGCCAAGCGCAGTCCCGCACGCTCATCTTCCACGTCAGCTCCTGCAGCGAGAGCTTGGCATGCTTCCCCAG                                                                                              
+SRR3104802.3178974	                               ACCTAGCAGGCATAATTAATTTTAATCTCCGTTTTTCATTAACTGTAAGAGGGCCCACATATTGTTGACATCTATCAATAATGTCCTCCTGTAAATGAAT                                                                                             	GGCCACCCCCTCCTCCCCTGGGCTCCTGCGCAGCCAAGCGCAGTCCCGCACGCTCATCTTCCACG                                                                                                                                   
+SRR3104802.3794693	                                                  TTTTAATCTCCGTTTTTCATTAACTGTAAGAGGGCCCACATATTGTTGACATCTATCAATAATGTCCTCCTGTAAATGAATGTGAGGAAAGGAGGGAGTT                                                                          	GGCCACCACCTCCTCACCTGGGCTCCTGCGCAGCCAAGCGCAGTCCCGCACGCTCATCTTCCACGTCAGCTCCTGCAGC                                                                                                                     
+SRR3104802.5855366	                                                                                                                              TGAATGTGAGGAAAGGAGGGAGTTTGCCACTCAGGATTAAAGACAGGTACAGTAGAAGAATAAAGCCCAGTAAAGTTTCCCACCTTATGAGTCCAA  	GGCCACCACCTCCTCACCTGGGCTCCTGCGCAGCCAAGCGCAGTCCCGCACGCTCATCTTCCACGTCAGCTCCT                                                                                                                          
+SRR3104802.4649733	                                                                                                                              TGAATGTGAGGAAAGGAGGGAGTTTGCCACTCAGGATTAAAGACAGGTACAGTAGAAGAATAAAGCCCAGTAAAGTTTCCCACCTTATGAGTCCAAGG	GGCCACCACCTCCTCACCTGGGCTCCTGCGCAGCCAAGCGCAGTCCCGCACGCTCATCTTCCACGTCAGCTCCT                                                                                                                          
+SRR3104802.3996849	                               ACCTAGCAGGCATAATTAATTTTAATCTCCGTTTTTCATTAACTGTAAGAGGGCCCACATATTGTTGACATCTATCAATAATGTCCTCCTGTAAATGAAT--------------------------------------------------------AAAGCCCAGTAAAGTTTCCCACCTTATGAGTCCAAGG	GGCCACCACCTCCTCACCTGGGCTCCTGCGCAGCCAAGCGCAGTCCCGCACGCTCATCTTCCACG                                                                                                                                   
+SRR3104802.5856764	                                                                                                                    CTCCTGTAAATGAATGTGAGGAAAGGAGGGAGTTTGCCACTCAGGATTAAAGACAGGTACAGTAGAAGAATAAAGCCCAGTAAAGTTTCCCACCTTATGAGTCCAAGG	GGCCACCACCTCCTCACCTGGGCTCCTGCGCAGCCAAGCGCA                                                                                                                                                          
+SRR3104802.991457 	                                                                                                                            AATGAATGTGAGGAAAGGAGGGAGTTTGCCACTCAGGATTAAAGACAGGTACAGTAGAAGAATAAAGCCCAGTAAAGTTTCCCACCTTATGAGTCCAAGG	GGCCACCACCTCCTCACCTGGGCTCCTGCGCAGCCAAGCGCAGTCCCGCACGCTCATCTTCCACGTCAGCTCCTGCAGCGAGAG                                                                                                                
+SRR3104802.5000624	AAGGGCAAATATTTGGTAATGTTAGGATAGAACCTAGCAGGCATAATTAATTTTAATCTCCGTTTTTCATTAACTGTAAGAGGGCCCACATATTGTTGAC-------------------------------------------------------------ATTAAAGACAGGTACAGTAGAAGAATAAAGCCCAGTAAAGTTTCCCACCTTATGAGTCCAAGG	GGCCACCACCTCCTCACCTGGGCTCCTGCGCAGCCAAGC                                                                                                                                                             
+SRR3104802.827442 	                                                                                              GTTGACATCTATCAATAATGTCCTCCTGTAAATGAATGTGAGGAAAGGAGGGAGTTTGCCACTCAGGATTAAAGACAGGTACAGTAGAAGAATAAAGCCCAGTAAAGTTTCCCACCTTATGAGTCCAAGG	GGCCACCACCTCCTCACCTGGGCTCCTGCGCAGCC                                                                                                                                                                 
+SRR3104802.6173889	                                                                                                                                                                   TAAAGACTGGTACAGTAGAAGAATAAAGCCCAGTAAAGTTTCCCACCTTATGAGTCCAAGG	GGCCACCACCTCCTCACCTGGGCTCCTGCGCAGCCAAGCGCAGTCCCGCACGCTCATCTTCCACGTCAGCTCCTGCAGCGAGAGCTTGGCATGCTTCCCCAGGGAGATGAACTTCT                                                                                
+
+
+The output of CVFinder consists of 3 sections:
+
+1) Summary Section:
+
+This section summarized all basic information depicting an integration cluster, such as the range 
+of cluster, cluster size, breakpoint(s), microhomology region for the top-ranked breakpoint, 
+and sequence complexity.
+
+The range of cluster is always from 5' to 3' and a human fragment is always on the positive strand 
+since it is easy to convert into the other orientation. Due to it, the coordinates of virus, which 
+is HBV in this case, are sorted decreasingly in the above example. The breakpoints listed above
+indicated that there might be two breakpoints in the cluster. Their scores suggested that the second
+breakpoint is supported by only 1.8 fragments. Breakpoint type is either 0 or 1. "0" means that the 
+breakpoint is ambiguous and it will be in format of "chr:strand:position-NA" and "chr:strand:NA-
+position", in which NA means the real breakpoint maybe lies beyond these positions. Meanwhile, "1" 
+means that the breakpoint belongs to one of the 3 scenarios: a. the breakpoint is exact; b. the
+breakpoint lies in a microhomology region, in which case the exact breakpoint couldn't be called; 
+c. there's an untemplated sequence lying between the human and virus fragment and the given breakpoint
+is its boundaries. The breakpoint of the 3rd case looks just like that of the 1st.
+
+The sequence complexity is estimated by DUST scores (or entropies). Typically, there's one score for
+each side of the fragments. However, when there are gaps in the assembled sequence, then the scores
+were calculated for each segment without gaps. The gaps may occur for 2 reasons: there are gaps
+in the alignments or there's region not covered by the fragments, which is normal in pair end
+sequencing data.
+
+2) Information Section
+
+This section records the information of every fragment contributing to the cluster. In some rare cases, 
+the exact breakpoints given by CVFinder may be miscalculated. This happens when the fragment outlier gives
+an exact breakpoint and all other fragments in the cluster are split reads. With this section, users
+could manually identify this scenario if the integration cluster is to be subject to experimental 
+validation. The format of this section is easy to read and the number in the last field is "0" or "1" 
+representing the breakpoint types.
+
+3) Sequence Section
+
+This section gives the assembled sequence, i.e. "Reference_sequence" in the output, which could be
+directly used in the downstream experiments. Also, every fragment sequence was listed according to 
+their coordinates.
