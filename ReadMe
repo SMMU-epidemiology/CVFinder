@@ -17,6 +17,18 @@ is dependent on a couple of packages requiring manual installation, which are:
 	b. cigar
 
 After installing these modules, run "sudo chmod +x CVFinder.py" to add execute permission.
+Then users could add the path of CVFinder package (e.g, ~/software/CVFinder) to the
+ENVIRONMENT VARIABLE. In Linux, just use your favorite editor and add following line to
+the "~/.bashrc" file:
+
+
+export PATH=$PATH:~/software/CVFinder
+
+
+Also, remember to run "source ~/.bashrc" to make it work in the current terminal.
+
+If you think the steps above are too much trouble, you could just put input files and
+all the .py files of CVFinder package in the same path.
 
 3. RUNNING
 
@@ -26,9 +38,15 @@ following command:
 
 	CVFinder.py -f output_aln.sam -o output_integration.txt
 
+If you didn't set the ENVIRONMENT VARIABLE and just put all files together, then the command
+will be:
+
+	./CVFinder.py -f output_aln.sam -o output_integration.txt
+
+
 For changing the default parameters, please run "CVFinder.py -h". Note that the output_aln.sam is 
 sorted by read names, which is the directed output of BWA-MEM. It should also be noted that, if 
-the input file is in .bam format, then the samtools 1.x should be installed. 
+the input file is in .bam format, then the samtools 1.x should be properly installed. 
 
 If there are orphan reads in your pair-end data and you don't want to just throw them away. Then users
 could separately map them by BWA-MEM and merge its sam file with that of pair-end data. CVFinder is able
